@@ -7,10 +7,14 @@ import axios from "axios";
 import { Toaster } from "react-hot-toast";
 import { UserContextProvider } from "../context/userContext";
 import EditUsers from "./pages/UserDashboard";
-import RegisterLibrarySystem from "./pages/RegisterLibrarySystem";
+import RegisterHospitalSystem from "./pages/RegisterHospitalSystem";
 import Logout from './components/Logout.jsx';
 import ReactDOM from "react-dom";
 import SetPassword from "./pages/SetPassword.jsx";
+import ViewReports from "./pages/ViewReports.jsx";
+import ReportLevel1 from "./pages/ReportLevel1.jsx";
+import ReportLevel2 from "./pages/ReportLevel2.jsx";
+import ReportLevel3 from "./pages/ReportLevel3.jsx";
 import Sqheader from "./components/Sqheader.jsx";
 import Dashboard from "./components/toolscreens/Dashboard.jsx";
 
@@ -46,10 +50,13 @@ const App = () => {
             <Route path="/editusers" element={<EditUsers />} />
             <Route path="/registerusers" element={<Register />} />
             <Route path="/setpassword/" element={<SetPassword />} />
-            <Route
-              path="/registerlibsystem"
-              element={<RegisterLibrarySystem />}
+            <Route path = "/reportlevel1/" element = {<ReportLevel1 />} />
+            <Route path = "/reportlevel2/" element = {<ReportLevel2 />} />
+            <Route path = "/reportlevel3/" element = {<ReportLevel3 />} />
+            <Route path="/registerhospitalsystem"
+              element={<RegisterHospitalSystem />}
             />
+            <Route path= "/viewreports" element={<ViewReports /> }/>
           </Routes>
         </div>
       </div>

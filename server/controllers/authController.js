@@ -1,29 +1,13 @@
 
 const User = require('../models/user')
-const LibrarySystem = require('../models/librarysystem')
+const HospitalSystem = require('../models/hospitalsystem')
+const Report = require('../models/report')
 const { hashPassword, comparePassword} = require('../helpers/auth')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 const crypto = require('crypto'); // Import the crypto module
 const { lookup } = require('dns/promises');
-
-
-// const path = require('path')
-// const sharp = require('sharp')
-// // import path from "path";
-// // import sharp from "sharp";r
-
-// const Library = require('../models/libraryModel.js')
-// // import { Library } from "../models/libraryModel.js";
-// const Floor = require('../models/floorModel.js')
-// // import { Floor } from "../models/floorModel.js";
-// const ObjectId = require('mongodb')
-
-// // import { ObjectId } from "mongodb";
-
-// const Shelfcluster = require('../models/shelfclusterModel.js')
-// // import { Shelfcluster } from "../models/shelfclusterModel.js";
-
+const UserModel = require('../models/user')
 
 
 
@@ -122,16 +106,16 @@ const registerUser = async (req, res) => {
         console.log('institution name is')
         console.log(institution)
         console.log('jere')
-        const librarySystem = await LibrarySystem.findById(requestingUser.institution);
+        const hospitalSystem = await HospitalSystem.findById(requestingUser.institution);
        
 
         const user = await User.create({name, surname, location, email, password: hashedPassword, institution: institution, admin: admin})
 
         console.log('im here')
     
-        //update library's list
-        librarySystem.members.push(user._id);
-        await librarySystem.save();
+        //update hospital's list
+        hospitalSystem.members.push(user._id);
+        await hospitalSystem.save();
         console.log('i am done')
         return res.json(user)
 
@@ -143,7 +127,7 @@ const registerUser = async (req, res) => {
 ////////////
 
 
-const registerLibrarySystem = async (req, res) => {
+const registerHospitalSystem = async (req, res) => {
     try {
         const {institutionName, institutionEmail} = req.body;
 
@@ -151,12 +135,13 @@ const registerLibrarySystem = async (req, res) => {
         if (!institutionName) return res.json({ error: 'Name is required'})
 
         //check if email exists
-        const exist = await LibrarySystem.findOne({institutionEmail})
+        const exist = await HospitalSystem.findOne({institutionEmail}) || await User.findOne({institutionEmail})
         
-        if (exist) return res.json({error: 'This email is already registered'})
+        
+        if (exist) return res.json({error: 'This email is already registered either as a user or a hospital system!'})
 
-        //create library system
-        const librarysystem = await LibrarySystem.create({institutionName, institutionEmail})
+        //create hospital system
+        const hospitalsystem = await HospitalSystem.create({institutionName, institutionEmail})
 
         
         //create an admin user 
@@ -173,19 +158,19 @@ const registerLibrarySystem = async (req, res) => {
           // console.log('institution name is')
           // console.log(institution)
 
-        const admin = await User.create({name: institutionName, surname: 'Library', email: institutionEmail, password: hashedPassword, institution: librarysystem._id, admin: true})
+        const admin = await User.create({name: institutionName, surname: 'Hospital', email: institutionEmail, password: hashedPassword, institution: hospitalsystem._id, admin: true})
         
         const secretUserEmail = institutionName.replace(/\s+/g, '').toLowerCase() + '@shelfquest.app'
         const secretUserPassword = await hashPassword(process.env.SECRET_USER)
-        const secretUser = await User.create({name: 'Shelfquest', surname: 'Admin', email: secretUserEmail, password: secretUserPassword, institution: librarysystem._id, admin: true})
+        const secretUser = await User.create({name: 'Shelfquest', surname: 'Admin', email: secretUserEmail, password: secretUserPassword, institution: hospitalsystem._id, admin: true})
        
-        //add admin to the library system
-       librarysystem.members.push(admin._id)
-       librarysystem.members.push(secretUser._id)
-       await librarysystem.save();
+        //add admin to the hospital system
+       hospitalsystem.members.push(admin._id)
+       hospitalsystem.members.push(secretUser._id)
+       await hospitalsystem.save();
 
 
-        return res.json(librarysystem)
+        return res.json(hospitalsystem)
 
     } catch (error) { console.log(error) }
 
@@ -208,7 +193,7 @@ const loginUser = async (req, res) => {
         const match = await comparePassword(password, user.password)
 
         if (match){
-            jwt.sign({email: user.email, id: user._id, name: user.name, institution: user.institution, surname: user.surname, admin: user.admin}, process.env.JWT_SECRET, {}, (err, token)=>{
+            jwt.sign({email: user.email, id: user._id, name: user.name, institution: user.institution, surname: user.surname, admin: user.admin, location: user.location}, process.env.JWT_SECRET, {}, (err, token)=>{
                 if (err) throw err;
                 res.cookie('token',token).json(user)
             })
@@ -258,8 +243,8 @@ const authenticateToken = (req, res, next) => {
     jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) =>{
         if (err) return res.sendStatus(403);
         req.user = user;
-        //console.log('THIS IS THE USER')
-        //console.log(user)
+        console.log('THIS IS THE USER')
+        console.log(user)
         next();
     })
     }
@@ -273,23 +258,21 @@ const viewUsers = async (req, res) => {
 
     try {
           
-        const librarySystemId = req.user.institution
+        const hospitalSystemId = req.user.institution
 
-        //console.log('id is')
-        //console.log(librarySystemId)
+        
 
-        // find the library system by ID and populate the members field
-        const librarySystem = await LibrarySystem.findById(librarySystemId).populate('members').exec();
+        // find the hospital system by ID and populate the members field
+        const hospitalSystem = await HospitalSystem.findById(hospitalSystemId).populate('members').exec();
 
-        //console.log(librarySystem)
-        if (!librarySystem) {
-            return res.status(404).json({ error: 'Library System not found' });
+        if (!hospitalSystem) {
+            return res.status(404).json({ error: 'Hospital System not found' });
         }
 
 
         // The populated members will be an array of user documents
-        //console.log(librarySystem.members)
-        return res.json(librarySystem.members);
+
+        return res.json(hospitalSystem.members);
      
     } catch (error) {
         console.error('Error retrieving users:', error);
@@ -299,22 +282,6 @@ const viewUsers = async (req, res) => {
 
 
 }
-
-// const getLibraryId =  async (req, res) => {
-
-//     try {
-//         const { name } = req.query;
-//         const library = await LibrarySystem.findOne({ name });
-
-//         if (!library) {
-//             return res.status(404).json({ message: 'Library not found' });
-//         }
-
-//         res.json(library);
-//     } catch (error) {
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// }
 
 const logoutUser = async (req, res) => {
     try {
@@ -427,456 +394,89 @@ const setPassword =  async (req, res) => {
   }
 };
 
-// /*********************** JAMES ********************/
-// // Plan of attack:
-// // - Get book call number, library name, and sublocation from url
-// // Get all floors with that sublocation
-// // For each floor, go through all ranges and check if call number falls there
-// // Once we find that range, stop going through floors and ranges
-// //  Get that floor's image, and draw all shelves on it
-// // Draw the target shelf in a different color
-// // Return the image
+const handleReports = async (req, res) => {
 
-// //(findbookroute.js)
+  try{
+    const level = parseInt(req.params.level, 10);
+    const currUser = req.user
+    
+    location = ''
+    if (req.body.location == ''){
+      location = currUser.location
+    }
 
-// const getAllFloors = async (request, response) => {
-//   try {
-//     const floors = await Floor.find({});
-//     floors.image = "//localhost:5555/mapit/" + floors._id;
-//     return response.status(200).send(floors);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// };
+    else{
+      location = req.body.location
+    }
 
-// /*******************************/
+    // console.log('USER during')
+    // console.log(currUser)
+    // console.log(currUser._id)
+    
+    userId = await User.findOne({name: currUser.name, surname: currUser.surname}).select('_id');
+    // console.log(userId)
+    const report = await Report.create({user: userId, level: level, location: location})
+    // console.log('REPORT IS')
+    // console.log(report)
+    const hospital = await HospitalSystem.findById(currUser.institution)
 
-// const getShelfClusters =  async (request, response) => {
-//   try {
-//     const myResponse = {};
+    console.log('HOSPITAL')
+   console.log(hospital)
 
-//     const floorObj = await Floor.findById(request.params.id);
-//     myResponse.name = floorObj.name;
-//     myResponse.image = "//localhost:5555/mapit/" + floorObj._id;
-
-//     const shelfclusters = await Shelfcluster.find({ floor: request.params.id });
-//     var shelfclusterList = [];
-//     shelfclusters.forEach(function (shelfcluster) {
-//       shelfclusterList.push(shelfcluster);
-//     });
-//     myResponse.clusters = shelfclusterList;
-
-//     return response.status(200).send(myResponse);
-//   } catch (err) {
-//     // Handle error
-//     console.error(err);
-//     return response.status(500).send("Error occurred while fetching data.");
-//   }
-// }
-
-// /*******************/
+    // Save the updated hospital document
+    hospital.reports.push(report._id);
+    await hospital.save();
+  } catch (err){
+    console.log(err)
+    res.status(401).json({err})
+    return;
+  }
+   
+  res.status(200).json('OK')
+    
+}
 
 
-// const createNewFloor =  async (request, response) => {
-//   try {
-//     if (
-//       request.body.name === undefined ||
-//       request.body.name === null ||
-//       // request.body.sublocation === undefined || request.body.sublocation === null
-//       request.body.library === undefined ||
-//       request.body.library === null
-//     ) {
-//       return response.status(400).send({ message: "Missing required fields" });
-//     }
+const viewReports = async (req, res) => {
 
-//     const newFloor = {
-//       name: request.body.name,
-//       image: request.toSavePath,
-//       library: request.body.library,
-//       // sublocation: request.body.sublocation
-//     };
+  try {
+        
+      const hospitalSystemId = req.user.institution
 
-//     const floor = await Floor.create(newFloor);
-//     //return response.status(201).send(floor);
-//     return response.status(201).send(floor);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
+      console.log('HOSPITAL ID')
+      console.log(hospitalSystemId)
 
-// /*************************/
-
-// const updateFloor =  async (request, response) => {
-//   try {
-//     const floorId = request.params.id;
-//     const updates = {
-//       name: request.body.name,
-//       library: request.body.library,
-//       // Optional: Include sublocation if needed
-//       // sublocation: request.body.sublocation
-//     };
-
-//     // Check if an image is being uploaded
-//     if (request.file) {
-//       updates.image = request.toSavePath;
-//     }
-
-//     const updatedFloor = await Floor.findByIdAndUpdate(floorId, updates, {
-//       new: true,
-//     });
-
-//     if (!updatedFloor) {
-//       return response.status(404).send({ message: "Floor not found" });
-//     }
-
-//     return response.status(200).send(updatedFloor);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
-
-// /************* end of floorRoute File ***********/
+      // find the hospital system by ID and populate the members field
+      // const hospitalSystem = await HospitalSystem.findById(hospitalSystemId).populate('reports').exec();
+      const hospitalSystem = await HospitalSystem.findById(hospitalSystemId)
+      .populate({
+        path: 'reports', 
+        populate: {
+          path: 'user',  // Reference to the user
+          select: 'name surname' // Only populate the 'name' field from the User model
+        }
+      })
+      .exec();
 
 
-// const lookupLibrary = async (request, response) => {
-//   try {
-//     // const libraries = await Library.find({});
-//     const libraries = await Library.aggregate([
-//       // Match the specific library by ID
-//       { $match: { _id: new ObjectId("66b82ca8d35e8bec8e035298") } },
+      if (!hospitalSystem) {
+          return res.status(404).json({ error: 'Hospital System not found' });
+      }
+        console.log('WELL')
+        console.log(hospitalSystem.reports)
+      // The populated members will be an array of user documents
 
-//       // Lookup floors associated with this library
-//       {
-//         $lookup: {
-//           from: "floors",
-//           localField: "_id",
-//           foreignField: "library",
-//           as: "floors",
-//           pipeline: [
-//             // Lookup shelfclusters for each floor inside the lookup itself
-//             {
-//               $lookup: {
-//                 from: "shelfclusters",
-//                 localField: "_id",
-//                 foreignField: "floor",
-//                 as: "shelfclusters",
-//               },
-//             },
-//           ],
-//         },
-//       },
-//     ]);
-//     console.log("hiiiiii");
-//     return response.status(200).send(libraries);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
-
-// const idkWhatThisIs = async (request, response) => {
-//   try {
-//     // const library = await Library.aggregate([
-//     //   // { $match: { _id: request.params.id } },
-//     //   { $match: { _id: new ObjectId("66b82ca8d35e8bec8e035298") } },
-//     //   {
-//     //     $lookup: {
-//     //       from: "floors",
-//     //       localField: "_id",
-//     //       foreignField: "library",
-//     //       as: "floors",
-//     //     },
-//     //   },
-//     // ]);
-//     const library = await Library.aggregate([
-//       // Match the specific library by ID
-//       { $match: { _id: new ObjectId("66b82ca8d35e8bec8e035298") } },
-
-//       // Lookup floors associated with this library
-//       {
-//         $lookup: {
-//           from: "floors",
-//           localField: "_id",
-//           foreignField: "library",
-//           as: "floors",
-//           pipeline: [
-//             // Lookup shelfclusters for each floor inside the lookup itself
-//             {
-//               $lookup: {
-//                 from: "shelfclusters",
-//                 localField: "_id",
-//                 foreignField: "floor",
-//                 as: "shelfclusters",
-//               },
-//             },
-//           ],
-//         },
-//       },
-//     ]);
-//     return response.status(200).send(library);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
+      return res.json(hospitalSystem.reports);
+   
+  } catch (error) {
+      console.error('Error retrieving users:', error);
+      return res.json({ error: 'Internal Server Error' });
+  }
 
 
-// const createNewLibrary = async (request, response) => {
-//   try {
-//     if (request.body.name === undefined || request.body.name === null) {
-//       return response
-//         .status(400)
-//         .send({ message: "Missing reasdfquired fields" });
-//     }
-//     const newLibrary = {
-//       name: request.body.name,
-//     };
 
-//     const library = await Library.create(newLibrary);
-//     return response.status(201).send(library);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
+}
 
-// /************ end of libraryroute.js */
-
-// /****************** map route ***********/
-
-// //const __dirname = path.resolve();
-
-
-// const getFloorImage = async (request, response) => {
-//   try {
-//     const myFloor = await Floor.findById(request.params.id);
-//     console.log(myFloor);
-//     if (!myFloor) {
-//       return response.status(404).send({ message: "Floor not found" });
-//     }
-//     // return response.status(200).send({ message: "HI" });
-//     console.log(myFloor.image + " that was image");
-//     console.log(myFloor.image);
-
-//     if (request.query.callno !== null && request.query.callno !== "") {
-//     }
-
-//     const imagePath = path.join(
-//       __dirname,
-//       "mapimages/",
-//       "librarynamehere/",
-//       myFloor.image
-//     );
-
-//     const image = await sharp(imagePath)
-//       .composite([
-//         {
-//           input: Buffer.from(
-//             `<svg width="500" height="500">
-//                     <text x="10" y="40" font-size="32" fill="black">Hello, World!</text>
-//                 </svg>`
-//           ),
-//           top: 0,
-//           left: 0,
-//         },
-//       ])
-//       .toBuffer();
-
-//     // Set the correct MIME type and send the image
-//     // response.set("Content-Type", "image/png");
-//     console.log("hii");
-//     response.set("Content-Type", "image/png");
-//     response.send(image);
-
-//     // response.send(
-//     // path.join(__dirname, "mapimages/", "librarynamehere/", myFloor.image)
-//     // );
-//     // response.sendFile(
-//     //   path.join(__dirname, "mapimages/", "librarynamehere/", myFloor.image)
-//     // );
-//   } catch (error) {
-//     return response.status(404).send({ message: "Floor not found" + error });
-//   }
-// }
-
-
-// const getFloorFile = async (request, response) => {
-//   try {
-//     const { l, cn } = request.query;
-
-//     // const file = `./mapimages/SecondFloor.png`;
-//     // response.download(file);
-
-//     response.sendFile(
-//       path.join(
-//         __dirname,
-//         "mapimages",
-//         "librarynamehere",
-//         "image1711240214138971920497.png"
-//       )
-//     );
-
-//     //return response.status(200).send(l + cn);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
-
-// /********** end of map route ************/
-
-
-// const findShelfClusterWithId = async (request, response) => {
-//   //Find shelfcluster with this ID
-//   try {
-//     const shelfCluster = await Shelfcluster.findById(request.params.id);
-//     if (!shelfCluster) {
-//       return response.status(404).send({ message: "Shelf Cluster not found" });
-//     }
-//     return response.status(200).send(shelfCluster);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
-
-
-// const createNewCluster = async (request, response) => {
-//   try {
-//     if (
-//       request.body.x1 === undefined ||
-//       request.body.x1 === null ||
-//       request.body.y1 === undefined ||
-//       request.body.y1 === null ||
-//       request.body.x2 === undefined ||
-//       request.body.x2 === null ||
-//       request.body.y2 === undefined ||
-//       request.body.y2 === null ||
-//       // request.body.floor === undefined || request.body.floor === null ||
-//       request.body.rotate === undefined ||
-//       request.body.rotate === null ||
-//       request.body.startCallNumber === undefined ||
-//       request.body.startCallNumber === null ||
-//       request.body.endCallNumber === undefined ||
-//       request.body.endCallNumber === null ||
-//       request.body.numShelves === undefined ||
-//       request.body.numShelves === null ||
-//       request.body.callNumberBoundaries === undefined ||
-//       request.body.callNumberBoundaries === null
-//     ) {
-//       return response.status(400).send({ message: "Missing required fields" });
-//     }
-//     const newCluster = {
-//       x1: request.body.x1,
-//       y1: request.body.y1,
-//       x2: request.body.x2,
-//       y2: request.body.y2,
-//       doubleRight: request.body.doubleRight,
-//       doubleLeft: request.body.doubleLeft,
-//       floor: request.body.floor,
-//       rotate: request.body.rotate,
-//       startCallNumber: request.body.startCallNumber,
-//       endCallNumber: request.body.endCallNumber,
-//       numShelves: request.body.numShelves,
-//       callNumberBoundaries: request.body.callNumberBoundaries,
-//     };
-
-//     const shelfCluster = await Shelfcluster.create(newCluster);
-//     return response.status(201).send(shelfCluster);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
-
-// const updateCluster = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const {
-//       x1,
-//       y1,
-//       x2,
-//       y2,
-//       numShelves,
-//       doubleLeft,
-//       doubleRight,
-//       callNumberBoundaries,
-//       startCallNumber,
-//       endCallNumber,
-//     } = req.body;
-
-//     const updatedCluster = await Shelfcluster.findByIdAndUpdate(
-//       id,
-//       {
-//         x1,
-//         y1,
-//         x2,
-//         y2,
-//         numShelves,
-//         doubleLeft,
-//         doubleRight,
-//         callNumberBoundaries,
-//         startCallNumber,
-//         endCallNumber,
-//       },
-//       { new: true }
-//     );
-
-//     if (!updatedCluster) {
-//       return res.status(404).json({ message: "Rectangle not found" });
-//     }
-
-//     res.json(updatedCluster);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// }
-
-// const getSublocations =  async (request, response) => {
-//   try {
-//     const sublocations = await Sublocation.find({
-//       libraryid: request.params.libraryid,
-//     });
-//     if (!sublocations) {
-//       return response.status(404).send({ message: "Sublocations not found" });
-//     } else {
-//       return response.status(200).send(sublocations);
-//     }
-//     // const shelfCluster = await Shelfcluster.findById(request.params.id);
-//     // if (!shelfCluster) {
-//     //     return response.status(404).send({ message: "Sublocation not found" });
-//     // }
-//     // return response.status(200).send(sublocation);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
-
-// const updateSublocations = async (request, response) => {
-//   try {
-//     if (
-//       request.body.libraryid === undefined ||
-//       request.body.libraryid === null ||
-//       request.body.name === undefined ||
-//       request.body.name === null
-//     ) {
-//       return response.status(400).send({ message: "Missing required fields" });
-//     }
-//     const newSublocation = {
-//       libraryid: request.body.libraryid,
-//       name: request.body.name,
-//     };
-//     const sublocation = await Sublocation.create(newSublocation);
-//     return response.status(201).send(newSublocation);
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// }
 
 
 module.exports = {
@@ -886,36 +486,14 @@ module.exports = {
     getProfile,
     viewUsers,
     authenticateToken,
-    registerLibrarySystem,
+    registerHospitalSystem,
     deleteUser,
     updateUser,
     logoutUser,
     setPassword,
-    userRole
-
-    // getAllFloors,
-    // getShelfClusters,
-
-    // idkWhatThisIs,
-
-  
-    // createNewFloor,
-    // updateFloor,
-
-    // lookupLibrary,
-    // createNewLibrary,
-
-
-    // getFloorImage,
-    // getFloorFile,
-
-    // findShelfClusterWithId,
-    // createNewCluster,
-    // updateCluster,
-
-    // getSublocations,
-    // updateSublocations
-
+    userRole,
+    handleReports,
+    viewReports
 
 }
 

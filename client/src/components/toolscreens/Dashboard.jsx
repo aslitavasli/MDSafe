@@ -5,7 +5,8 @@ import axios from 'axios';
 
 function Dashboard() {
   const [adminData, setAdminData] = useState(null);
-
+  const [location, setLocation] = useState(""); // State for location input
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchAdminData() {
@@ -20,65 +21,92 @@ function Dashboard() {
     fetchAdminData();
   }, []); // Empty dependency array ensures this runs once on mount
 
-  // If data is loading, you can display a loading state
- 
-console.log(adminData)
+  async function handleReport(level) {
+    try {
+      const response = await axios.post(`/report/${level}`, { location });
+      console.log("Report handled successfully:", response.data);
+    } catch (error) {
+      console.error("Error handling report:", error);
+    }
+  }
+
+  async function filler(){
+    console.log('hi')
+  }
+
   return (
     <div>
-      <h1>Dashboard</h1>
-      <div className="dashboardTile">
-        <DashboardTile
-          name="Manage floors"
-          image="newfloor.png"
-          id="floors"
-          description="Create, modify and delete floors"
-        />
-        <DashboardTile
-          name="Manage shelves"
-          image="managefloors.png"
-          id="manageshelves"
-          description="Create, modify and delete shelves"
-        />
-        <DashboardTile
-          name="Manage range values"
-          image="managefloors.png"
-          id="floors"
-          description="Assign call number ranges to specific shelves"
-        />
-        <DashboardTile
-          name="View maps"
-          image="managefloors.png"
-          id="floors"
-          description="View floor maps and look up a book"
-        />
+      {adminData?.admin && ( // Show admin tiles if user is an admin
+        <>
+          <h1>Dashboard</h1>
+          <DashboardTile
+            name="View Feedback"
+            image="managefloors.png"
+            id="admin"
+            description="Only admins can see this tile."         
+          />
+          <DashboardTile
+            name="Edit Users"
+            image="managefloors.png"
+            id="editusers"
+            description="Only admins can see this tile."
+          />
+          <DashboardTile
+            name="Previous Incidents"
+            image="managefloors.png"
+            id="registerusers"
+            description="Only admins can see this tile."
+         
+          />
+        </>
+      )}
 
-        {adminData?.admin && ( // Show admin tiles if user is an admin
-          <>
-            <DashboardTile
-              name="Admin panel"
-              image="managefloors.png"
-              id="admin"
-              description="Only admins can see this tile."
-            />
-            <DashboardTile
-              name="Edit users"
-              image="managefloors.png"
-              id="editusers"
-              description="Only admins can see this tile."
-            />
-            <DashboardTile
-              name="Register new user"
-              image="managefloors.png"
-              id="registerusers"
-              description="Only admins can see this tile."
-            />
-          </>
-        )}
-      </div>
+      {!adminData?.admin && ( // Show user tiles if not an admin
+        <>
+          <h1>Report</h1>
+          <DashboardTile
+            name="L1"
+            image="managefloors.png"
+            id="reportlevel1"
+            description="Report 1"
+            onClick={() => handleReport(1)}
+          />
+          <DashboardTile
+            name="L2"
+            image="managefloors.png"
+            id="reportlevel2"
+            description="Report 2"
+            onClick={() => handleReport(2)}
+          />
+          <DashboardTile
+            name="L3"
+            image="managefloors.png"
+            id="reportlevel3"
+            description="Report 3"
+            onClick={() => handleReport(3)}
+          />
+
+          <h1>Different Location?</h1>
+          <input
+            type="text"
+            placeholder={location || "Enter name..."} // Dynamic placeholder
+            value={location}
+            onChange={(e) => setLocation(e.target.value)} // Update location state
+            required
+            style={{
+              width: '100%',
+              padding: '8px',
+              marginTop: '5px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+            }}
+          />
+        </>
+      )}
     </div>
   );
 
-  function DashboardTile({ name, image, id, description }) {
+  function DashboardTile({ name, image, id, description, onClick }) {
     return (
       <div
         className="dashboardTile"
@@ -90,13 +118,9 @@ console.log(adminData)
           margin: "5px",
           width: "150px",
         }}
-        onClick={() => {
-          // setToShow(id)
-          // navigate(id);
-        }}
+        onClick={onClick} // Pass click event to parent
       >
-        <Link to={`${id}`}>
-          {/* <img src={image} style={{ width: "150px" }} /> */}
+        <Link to={`${id}/`}>
           <h4 style={{ textAlign: "center" }}>{name}</h4>
           <p>{description}</p>
         </Link>
