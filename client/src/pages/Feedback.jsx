@@ -7,7 +7,6 @@ const FeedbackForm = () => {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
-  // const [isSentToMedSafe, setIsSentToMedSafe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -25,13 +24,9 @@ const FeedbackForm = () => {
         title,
         message,
         isAnonymous,
-        //isSentToMedSafe,
       });
       if (response.status === 200) {
-        // Show success toast
         toast.success('Feedback submitted successfully!');
-
-        // Reset form after submission
         setTitle('');
         setMessage('');
         setIsAnonymous(false);
@@ -43,16 +38,28 @@ const FeedbackForm = () => {
       setIsSubmitting(false);
     }
 
-    // Optionally, navigate to another page after submission
     navigate('/');
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h2>Feedback Form</h2>
+    <div
+      style={{
+        maxWidth: '500px',
+        margin: '50px auto',
+        padding: '30px',
+        backgroundColor: '#fff', // Changed background to white
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", // Modern system fonts
+      }}
+    >
+      <h2 style={{ textAlign: 'center', color: '#333', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
+        Submit Your Feedback
+      </h2>
+
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="title" style={{ display: 'block', marginBottom: '5px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="title" style={{ fontSize: '16px', color: '#333', marginBottom: '8px', display: 'block' }}>
             Title:
           </label>
           <input
@@ -60,59 +67,74 @@ const FeedbackForm = () => {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            placeholder="Enter feedback title..."
+            style={{
+              width: '100%',
+              padding: '12px',
+              fontSize: '14px',
+              borderRadius: '6px',
+              border: '1px solid #f0f0f0', // Off-white border
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", // Matching font
+            }}
           />
         </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="message" style={{ display: 'block', marginBottom: '5px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="message" style={{ fontSize: '16px', color: '#333', marginBottom: '8px', display: 'block' }}>
             Message:
           </label>
           <textarea
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            rows="4"
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            placeholder="Write your feedback here..."
+            rows="6"
+            style={{
+              width: '100%',
+              padding: '12px',
+              fontSize: '14px',
+              borderRadius: '6px',
+              border: '1px solid #f0f0f0', // Off-white border
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", // Matching font
+            }}
           ></textarea>
         </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              type="checkbox"
-              checked={isAnonymous}
-              onChange={(e) => setIsAnonymous(e.target.checked)}
-              style={{ marginRight: '8px' }}
-            />
+        <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
+          <input
+            type="checkbox"
+            checked={isAnonymous}
+            onChange={(e) => setIsAnonymous(e.target.checked)}
+            style={{ marginRight: '10px', transform: 'scale(1.2)' }}
+          />
+          <span style={{ fontSize: '14px', color: '#555', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
             Submit Anonymously
-          </label>
-          {/* <label style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              type="checkbox"
-              checked={isSentToMedSafe}
-              onChange={(e) => setIsSentToMedSafe(e.target.checked)}
-              style={{ marginRight: '8px' }}
-            />
-            Submit To MedSafe Platform
-          </label> */}
+          </span>
         </div>
+
         <button
           type="submit"
           disabled={isSubmitting}
           style={{
-            backgroundColor: isSubmitting ? '#ccc' : '#007BFF',
-            color: 'white',
+            width: '100%',
+            padding: '14px',
+            fontSize: '16px',
+            backgroundColor: isSubmitting ? '#bbb' : '#b71c1c',
+            color: '#fff',
             border: 'none',
-            padding: '10px 15px',
+            borderRadius: '6px',
             cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            borderRadius: '4px',
+            transition: 'background-color 0.3s ease',
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", // Matching font
           }}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
         </button>
       </form>
 
-      {/* Toaster container to show toasts */}
-      <Toaster />
+  
     </div>
   );
 };

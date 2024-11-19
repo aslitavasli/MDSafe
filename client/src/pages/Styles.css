@@ -1,71 +1,192 @@
 /* General Body Styling */
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f4f7fa;
-    color: #333;
-  }
-  
-  /* Custom Title */
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f7fa;
+  color: #333;
+}
+
+/* Titles */
+.custom-title {
+  font-family: 'Montserrat', sans-serif;
+  color: #000000;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.custom-subtitle, 
+.custom-report-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #000000;
+}
+
+.custom-report-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Custom Input Field */
+.custom-input {
+  border-radius: 25px;
+  border: 1px solid #16a085;
+  padding: 15px;
+  font-size: 1.1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+}
+
+.custom-input:focus {
+  border-color: #1abc9c;
+  box-shadow: 0 0 10px rgba(26, 188, 156, 0.5);
+}
+
+/* Custom Card */
+.custom-card {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.custom-card-title {
+  font-family: 'Montserrat', sans-serif;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.custom-card-text {
+  font-family: 'Trebuchet MS', sans-serif;
+  color: #e1f4f6;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+/* Links Inside Cards */
+.card-body a {
+  color: #1abc9c;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.card-body a:hover {
+  color: #16a085;
+}
+
+/* Button Styling */
+button.btn-primary,
+button.btn-success,
+button.btn-danger {
+  padding: 8px 16px; /* Adjust padding */
+  font-size: 1rem; /* Adjust font size */
+  border-radius: 8px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+button.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+button.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+button.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+button.btn-success:hover {
+  background-color: #218838;
+}
+
+button.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+button.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* Text Centering Utility */
+.text-center {
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .custom-title {
-    font-family: 'Montserrat', sans-serif;
-    color: #2c3e50;
-    font-weight: 700;
+    font-size: 1.5rem;
   }
-  
-  /* Subtitle */
-  .custom-subtitle {
-    font-family: 'Poppins', sans-serif;
-    color: #16a085;
-    font-weight: 600;
-  }
-  
-  /* Custom Input Field */
-  .custom-input {
-    border-radius: 30px;
-    border: 1px solid #16a085;
-    padding: 15px;
-    font-size: 1.1rem;
-  }
-  
-  .custom-input:focus {
-    border-color: #1abc9c;
-    box-shadow: 0 0 10px rgba(26, 188, 156, 0.5);
-  }
-  
-  /* Custom Card */
-  .custom-card {
-    background-color: #ffffff;
-    border: none;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .custom-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  .custom-card-title {
-    color: #2c3e50;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  .custom-card-text {
-    color: #7f8c8d;
+
+  .custom-subtitle, 
+  .custom-report-subtitle {
     font-size: 1rem;
-    margin-top: 10px;
   }
-  
-  .custom-card-body {
-    padding: 25px;
+
+  .custom-card-title {
+    font-size: 1.25rem;
   }
-  
-  /* Button-like Links */
-  .card-body a {
-    color: #1abc9c;
+
+  .custom-card-text {
+    font-size: 0.9rem;
   }
-  
-  .card-body a:hover {
-    color: #16a085;
+
+  .custom-report-title {
+    font-size: 1.5rem;
   }
-  
+
+  .custom-input {
+    padding: 12px;
+  }
+
+  /* Adjust card responsiveness */
+  .custom-card {
+    margin-bottom: 1rem;
+  }
+
+  /* Adjust button padding and size for small screens */
+  button.btn-primary,
+  button.btn-success,
+  button.btn-danger {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Flex Layout for Equal Button Spacing */
+.button-row {
+  display: flex;
+  gap: 1rem; /* Optional spacing between buttons */
+}
+
+.button-row .custom-card {
+  flex: 1; /* Ensure all buttons are equally spaced */
+  margin: 0;
+}
+
+.tile-red {
+  background-color: #ac1450;
+}
+
+.tile-green {
+  background-color: #883272;
+}
+
+.tile-blue {
+  background-color: #5a447d;
+}

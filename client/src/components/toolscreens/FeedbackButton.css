@@ -1,3 +1,6 @@
+/* In src/index.css or any CSS file */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
 .feedback-button-container {
   position: fixed;
   bottom: 20px;
@@ -20,4 +23,35 @@
 .feedback-button:hover {
   background-color: #0056b3;
   transform: scale(1.05);
+}
+
+/* Additional style for the report buttons */
+.dashboardTile {
+  background: #f0f8ff;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px;
+  width: 160px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Hover effect for the dashboard tiles */
+.dashboardTile:hover {
+  background-color: #d3e7f1;
+  transform: scale(1.05);
+}
+
+/* Responsive layout for small screens */
+@media (max-width: 768px) {
+  .feedback-button {
+    width: 100%;
+    min-width: 100%;
+    font-size: 14px;
+  }
+
+  .dashboardTile {
+    width: 100%;
+  }
 }

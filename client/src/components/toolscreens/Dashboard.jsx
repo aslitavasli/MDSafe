@@ -39,69 +39,93 @@ function Dashboard() {
     <div>
       {adminData?.admin && ( // Show admin tiles if user is an admin
         <>
-          <h1>Dashboard</h1>
-          <DashboardTile
-            name="View Feedback"
-            image="managefloors.png"
-            id="viewfeedback"
-            description="Only admins can see this tile."         
-          />
-          <DashboardTile
-            name="Edit Users"
-            image="managefloors.png"
-            id="editusers"
-            description="Only admins can see this tile."
-          />
-          <DashboardTile
-            name="Previous Incidents"
-            image="managefloors.png"
-            id="viewreports"
-            description="Only admins can see this tile."
-         
-          />
+       <div className="container mt-5">
+  <h2 className="text-center mb-4 custom-title">Dashboard </h2>
+  <div className="row">
+    <div className="col-md-4">
+      <DashboardTile
+        name="View Feedback"
+        image="managefloors.png"
+        id="viewfeedback"
+        description="View feedback from employees."
+        className="tile-red"
+      />
+    </div>
+    <div className="col-md-4">
+      <DashboardTile
+        name="Edit Users"
+        image="managefloors.png"
+        id="editusers"
+        description="View, add, edit, and remove users."
+        className="tile-red"
+      />
+    </div>
+    <div className="col-md-4">
+      <DashboardTile
+        name="Previous Incidents"
+        image="managefloors.png"
+        id="viewreports"
+        description="See current and previous reports."
+        className="tile-red"
+      />
+    </div>
+  </div>
+</div>
         </>
       )}
 
       {!adminData?.admin && ( // Show user tiles if not an admin
         <>
-          <h1>Report</h1>
+         <div className="container mt-5">
+         <h2 className="text-center mb-4 custom-title">Report </h2>
+         
+
+          <div className="row mb-4 g-3">
+          <div className="col-12">
           <DashboardTile
             name="L1"
             image="managefloors.png"
             id="reportlevel1"
-            description="Report 1"
+            description="Feeling unsafe, have a guard nearby."
+            className="tile-red"
             onClick={() => handleReport(1)}
           />
+           </div>
+
+           <div className="col-12">
           <DashboardTile
             name="L2"
             image="managefloors.png"
             id="reportlevel2"
-            description="Report 2"
+            description="Call local security."
+            className="tile-green"
             onClick={() => handleReport(2)}
           />
+           </div>
+          <div className="col-12">
           <DashboardTile
             name="L3"
             image="managefloors.png"
             id="reportlevel3"
-            description="Report 3"
+            description="Call local security and law enforcement."
+            className="tile-blue"
             onClick={() => handleReport(3)}
           />
+          </div>
+          </div>
+          </div>
 
-          <h1>Different Location?</h1>
-          <input
-            type="text"
-            placeholder={location || "Enter name..."} // Dynamic placeholder
-            value={location}
-            onChange={(e) => setLocation(e.target.value)} // Update location state
-            required
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginTop: '5px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-            }}
-          />
+          <div className="container mt-5">
+      <h4 className="text-center mb-4 custom-title">Different Location?</h4>
+        <input
+          type="text"
+          className="form-control custom-input"
+          placeholder={location || "Enter current location..."}
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          required
+        />
+      </div>
 
 <div className="feedback-button-container">
             <button className="feedback-button" onClick={openFeedbackForm}>
@@ -115,27 +139,23 @@ function Dashboard() {
     </div>
   );
 
-  function DashboardTile({ name, image, id, description, onClick }) {
-    return (
-      <div
-        className="dashboardTile"
-        style={{
-          display: "inline-block",
-          background: "lightblue",
-          border: "1px solid black",
-          padding: "20px",
-          margin: "5px",
-          width: "150px",
-        }}
-        onClick={onClick} // Pass click event to parent
-      >
-        <Link to={`${id}/`}>
-          <h4 style={{ textAlign: "center" }}>{name}</h4>
-          <p>{description}</p>
+ // DashboardTile component for creating each clickable tile
+function DashboardTile({ name, id, description, onClick, className }) {
+  return (
+    <div
+      className={`card shadow-lg mb-3 custom-card ${className}`}
+      style={{ cursor: "pointer" }}
+      onClick={onClick} // Pass click event to parent
+    >
+      <div className="card-body text-center">
+        <Link to={`../${id}`} className="text-decoration-none text-dark">
+          <h5 className="card-title custom-card-title">{name}</h5>
+          <p className="card-text custom-card-text">{description}</p>
         </Link>
       </div>
-    );
-  }
+    </div>
+  );
+}
 }
 
 export default Dashboard;

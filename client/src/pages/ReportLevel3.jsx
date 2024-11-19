@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
+import './styles.css'; // Import shared CSS
 
 export default function ReportLevel3() {
   const [location, setLocation] = useState("");
 
+  // Function to handle report submission
   async function handleReport(level) {
     try {
       const response = await axios.post(`/report/${level}`, { location });
@@ -14,7 +16,8 @@ export default function ReportLevel3() {
     }
   }
 
-  async function handleCancel(){
+  // Function to handle cancelation of report
+  async function handleCancel() {
     try {
       const level = 3;
       const response = await axios.delete(`/cancelreport`, { data: { level } });
@@ -25,54 +28,54 @@ export default function ReportLevel3() {
   }
 
   return (
-    <div>
-      <h2>LEVEL 3 pressed....</h2>
+    <div className="container mt-5">
+      <h2 className="text-center mb-4 custom-title">You have reported Level 3... </h2>
+      <h3 className="text-center mb-4 custom-subtitle">Law enforcement will be here momentarily.</h3>
 
-      <DashboardTile
-        name="Cancel..."
-        id="/"
-        description="Mistake? Cancel now"
-        onClick={() => handleCancel()}
-      />
 
-      <h1>Different Location?</h1>
-      <input
-        type="text"
-        placeholder={location || "Enter name..."} // Dynamic placeholder
-        value={location}
-        onChange={(e) => setLocation(e.target.value)} // Update location state
-        required
-        style={{
-          width: '100%',
-          padding: '8px',
-          marginTop: '5px',
-          borderRadius: '4px',
-          border: '1px solid #ccc',
-        }}
-      />
+      <div className="row mb-4 g-3">
+        {/* Report level tiles */}
+        <div className="col-12">
+          <DashboardTile
+            name="Cancel"
+            id="/"
+            description="Mistake? Cancel now."
+            className="tile-blue"
+            onClick={() => handleCancel()}
+          />
+        </div>
+      </div>
+
+      {/* Location input */}
+      <h4 className="text-center mb-4 custom-title">Different Location?</h4>
+      <div className="input-group mb-4">
+        <input
+          type="text"
+          className="form-control custom-input"
+          placeholder={location || "Enter current location..."}
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          required
+        />
+      </div>
     </div>
   );
 }
 
-function DashboardTile({ name, id, description, onClick }) {
+// DashboardTile component for creating each clickable tile
+function DashboardTile({ name, id, description, onClick, className }) {
   return (
     <div
-      className="dashboardTile"
-      style={{
-        display: "inline-block",
-        background: "lightblue",
-        border: "1px solid black",
-        padding: "20px",
-        margin: "5px",
-        width: "150px",
-        cursor: "pointer",
-      }}
+      className={`card shadow-lg mb-3 custom-card ${className}`}
+      style={{ cursor: "pointer" }}
       onClick={onClick} // Pass click event to parent
     >
-      <Link to={`../${id}`}>
-        <h4 style={{ textAlign: "center" }}>{name}</h4>
-        <p>{description}</p>
-      </Link>
+      <div className="card-body text-center">
+        <Link to={`../${id}`} className="text-decoration-none text-dark">
+          <h5 className="card-title custom-card-title">{name}</h5>
+          <p className="card-text custom-card-text">{description}</p>
+        </Link>
+      </div>
     </div>
   );
 }
