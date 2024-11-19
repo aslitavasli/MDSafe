@@ -19,6 +19,7 @@ import Sqheader from "./components/Sqheader.jsx";
 import Dashboard from "./components/toolscreens/Dashboard.jsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import FeedbackForm from "./pages/Feedback.jsx";
+import ViewFeedback from "./pages/ViewFeedback.jsx";
 
 
 axios.defaults.baseURL = "http://localhost:8000";
@@ -61,6 +62,7 @@ const App = () => {
             />
             <Route path= "/viewreports" element={<ViewReports /> }/>
             <Route path= "/submitfeedback" element={<FeedbackForm /> }/>
+            <Route path = "viewfeedback" element={<ViewFeedback />}/>
           </Routes>
         </div>
       </div>

@@ -555,6 +555,45 @@ catch (err){
 }
 
 
+
+const viewFeedback = async (req, res) => {
+
+  try {
+        
+      const hospitalSystemId = req.user.institution
+
+      // find the hospital system by ID and populate the members field
+      // const hospitalSystem = await HospitalSystem.findById(hospitalSystemId).populate('reports').exec();
+      const hospitalSystem = await HospitalSystem.findById(hospitalSystemId)
+      .populate({
+        path: 'feedback', 
+        populate: {
+          path: 'user',  // Reference to the user
+          select: 'name surname' // Only populate the 'name' field from the User model
+        }
+      })
+      .exec();
+
+
+      if (!hospitalSystem) {
+          return res.status(404).json({ error: 'Hospital System not found' });
+      }
+      
+      // The populated members will be an array of user documents
+
+      return res.json(hospitalSystem.feedback);
+   
+  } catch (error) {
+      console.error('Error retrieving feedback:', error);
+      return res.json({ error: 'Internal Server Error' });
+  }
+
+
+
+}
+
+
+
 module.exports = {
     test,
     registerUser,
@@ -571,7 +610,8 @@ module.exports = {
     handleReports,
     viewReports,
     deleteReport,
-    handleFeedback
+    handleFeedback,
+    viewFeedback
 
 }
 

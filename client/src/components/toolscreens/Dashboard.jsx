@@ -43,7 +43,7 @@ function Dashboard() {
           <DashboardTile
             name="View Feedback"
             image="managefloors.png"
-            id="admin"
+            id="viewfeedback"
             description="Only admins can see this tile."         
           />
           <DashboardTile

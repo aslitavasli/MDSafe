@@ -4,7 +4,7 @@ const cors= require('cors')
 const { test, registerUser, loginUser, getProfile, viewUsers,
     authenticateToken, registerHospitalSystem, deleteUser, updateUser, logoutUser, 
     setPassword, userRole, handleReports,
-    viewReports, deleteReport, handleFeedback} = require('../controllers/authController')
+    viewReports, deleteReport, handleFeedback, viewFeedback} = require('../controllers/authController')
 
 
 //middleware
@@ -40,6 +40,6 @@ router.post('/registerhospitalsystem', registerHospitalSystem)
 router.post('/logout', logoutUser)
 
 router.post('/submitfeedback', authenticateToken, handleFeedback)
-
+router.get('/viewfeedback', authenticateToken, viewFeedback)
 
 module.exports = router 
