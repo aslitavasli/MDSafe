@@ -17,6 +17,9 @@ import ReportLevel2 from "./pages/ReportLevel2.jsx";
 import ReportLevel3 from "./pages/ReportLevel3.jsx";
 import Sqheader from "./components/Sqheader.jsx";
 import Dashboard from "./components/toolscreens/Dashboard.jsx";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import FeedbackForm from "./pages/Feedback.jsx";
+
 
 axios.defaults.baseURL = "http://localhost:8000";
 axios.defaults.withCredentials = true;
@@ -57,6 +60,7 @@ const App = () => {
               element={<RegisterHospitalSystem />}
             />
             <Route path= "/viewreports" element={<ViewReports /> }/>
+            <Route path= "/submitfeedback" element={<FeedbackForm /> }/>
           </Routes>
         </div>
       </div>

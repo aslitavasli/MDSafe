@@ -2,13 +2,11 @@
 const User = require('../models/user')
 const HospitalSystem = require('../models/hospitalsystem')
 const Report = require('../models/report')
+const Feedback = require('../models/feedback')
 const { hashPassword, comparePassword} = require('../helpers/auth')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 const crypto = require('crypto'); // Import the crypto module
-const { lookup } = require('dns/promises');
-const UserModel = require('../models/user')
-
 
 
 const test = (req, res) => {
@@ -413,6 +411,7 @@ const handleReports = async (req, res) => {
     // console.log(currUser)
     // console.log(currUser._id)
     
+    //change to EMAIL
     userId = await User.findOne({name: currUser.name, surname: currUser.surname}).select('_id');
     // console.log(userId)
     const report = await Report.create({user: userId, level: level, location: location})
@@ -478,6 +477,83 @@ const viewReports = async (req, res) => {
 }
 
 
+const deleteReport = async (req, res) => {
+
+  try {
+    const level = parseInt(req.body.level, 10)
+    const name = req.user.name
+    const surname = req.user.surname
+    console.log(name)
+    console.log(surname)
+    console.log(level)
+    console.log(req.user.email)
+    const requestingUser = await User.findOne({email: req.user.email})
+
+    //console.log(requestingUser)
+    const latestReport = await Report.find({
+      user: requestingUser,
+      level: level
+
+    })
+     .sort({ createdAt: -1 })  // Sort by 'created_at' in descending order (latest first)
+     .exec();
+   console.log('LATEST')
+    console.log(latestReport[0])
+    const result = await Report.deleteOne(latestReport[0])
+
+    if (!result) {
+      res.status(500).json({ error: 'Internal server error, try again' });
+    }
+
+    res.status(200).json({ message: 'Report cancelled successfully' });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error, try again' });
+  }
+};
+
+
+
+const handleFeedback = async (req, res) => {
+  // const title = req.params.title
+  // const message = req.params.message
+
+  // const isAnonymous = req.params.isAnonymous
+  // const isSentToMedSafe = req.params.isSentToMedSafe
+  //const { title, message, isAnonymous, isSentToMedSafe } = req.body;
+
+  try{
+  const { title, message, isAnonymous } = req.body;
+
+  console.log(title)
+  console.log(message)
+  console.log(isAnonymous)
+
+  
+  if (!isAnonymous){
+    userId = await User.findOne({email: req.user.email}).select('_id');
+  }
+  else{
+    userId = null;
+  }
+  
+  const form = await Feedback.create({title: title, body: message, user: userId, isAnonymous: isAnonymous })
+
+  const hospital = await HospitalSystem.findById(req.user.institution)
+
+  console.log('HOSPITAL')
+ console.log(hospital)
+
+  // Save the updated hospital document
+  hospital.feedback.push(form._id);
+  await hospital.save();
+}
+catch (err){
+  res.status(500).json('internal server error')
+}
+  res.status(200).json('oKI!')
+}
+
 
 module.exports = {
     test,
@@ -493,7 +569,9 @@ module.exports = {
     setPassword,
     userRole,
     handleReports,
-    viewReports
+    viewReports,
+    deleteReport,
+    handleFeedback
 
 }
 

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import './FeedbackButton.css';
 
 function Dashboard() {
   const [adminData, setAdminData] = useState(null);
@@ -30,8 +31,8 @@ function Dashboard() {
     }
   }
 
-  async function filler(){
-    console.log('hi')
+  function openFeedbackForm(){
+    navigate('/submitfeedback')
   }
 
   return (
@@ -54,7 +55,7 @@ function Dashboard() {
           <DashboardTile
             name="Previous Incidents"
             image="managefloors.png"
-            id="registerusers"
+            id="viewreports"
             description="Only admins can see this tile."
          
           />
@@ -101,6 +102,14 @@ function Dashboard() {
               border: '1px solid #ccc',
             }}
           />
+
+<div className="feedback-button-container">
+            <button className="feedback-button" onClick={openFeedbackForm}>
+                Share Feedback
+            </button>
+        </div>
+
+
         </>
       )}
     </div>

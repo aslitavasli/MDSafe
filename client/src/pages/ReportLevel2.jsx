@@ -14,6 +14,16 @@ export default function ReportLevel2() {
     }
   }
 
+  async function handleCancel(){
+    try {
+      const level = 2;
+      const response = await axios.delete(`/cancelreport`, { data: { level } });
+      console.log("Cancelled successfully:", response.data);
+    } catch (error) {
+      console.error("Error handling cancel:", error);
+    }
+  }
+
   return (
     <div>
       <h2>LEVEL 2 pressed....</h2>
@@ -27,9 +37,9 @@ export default function ReportLevel2() {
 
       <DashboardTile
         name="Cancel..."
-        id="cancelreport"
+        id="/"
         description="Mistake? Cancel now"
-        onClick={() => handleReport("cancel")}
+        onClick={() => handleCancel()}
       />
 
       <h1>Different Location?</h1>

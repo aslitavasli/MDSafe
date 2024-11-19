@@ -26,7 +26,15 @@ const hospitalSchema = new Schema({
     members: [{
         type: Schema.Types.ObjectId,
          ref: 'User',
-         default: []}]
+         default: []}],
+         
+    
+    //feedback
+    feedback: [{
+        type: Schema.Types.ObjectId, 
+        ref: 'Feedback',
+        default: []
+    }],
 
 })
 
