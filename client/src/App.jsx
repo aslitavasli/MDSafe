@@ -42,10 +42,6 @@ const App = () => {
           style={{
             width: "100vw", // Full width of the viewport
             height: "100vh",
-            // marginLeft: "5%",
-            // marginRight: "5%",
-            // marginBottom: "5%",
-            // marginTop: "5%",
             background: "white",
             padding: "20px",
             borderRadius: "8px",  // Adding border radius for rounded corners

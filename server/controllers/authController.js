@@ -99,22 +99,20 @@ const registerUser = async (req, res) => {
         //create a filler password
         const password = generateUniqueString()
 
-        console.log(' i made here 3')
+        
         const hashedPassword = await hashPassword(password)
-        console.log('institution name is')
-        console.log(institution)
-        console.log('jere')
+        
         const hospitalSystem = await HospitalSystem.findById(requestingUser.institution);
        
 
         const user = await User.create({name, surname, location, email, password: hashedPassword, institution: institution, admin: admin})
 
-        console.log('im here')
+        
     
         //update hospital's list
         hospitalSystem.members.push(user._id);
         await hospitalSystem.save();
-        console.log('i am done')
+       
         return res.json(user)
 
     } catch (error) { console.log(error) }
@@ -153,8 +151,7 @@ const registerHospitalSystem = async (req, res) => {
           const password = generateUniqueString()
   
           const hashedPassword = await hashPassword(password)
-          // console.log('institution name is')
-          // console.log(institution)
+        
 
         const admin = await User.create({name: institutionName, surname: 'Hospital', email: institutionEmail, password: hashedPassword, institution: hospitalsystem._id, admin: true})
         
@@ -217,14 +214,8 @@ const loginUser = async (req, res) => {
 const getProfile = (req, res) => {
 
     
-    //console.log('I MADE IT HERE')
     const user = req.user
     
-    // console.log(req.user)
-    // console.log(`NAME`)
-    // console.log(name)
-    // console.log(`SURNAME`)
-    // console.log(surname)
 
     return res.json( {name: req.user.name, surname: req.user.surname})
 }
@@ -241,8 +232,7 @@ const authenticateToken = (req, res, next) => {
     jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) =>{
         if (err) return res.sendStatus(403);
         req.user = user;
-        console.log('THIS IS THE USER')
-        console.log(user)
+  
         next();
     })
     }
@@ -310,16 +300,11 @@ const deleteUser = async (req, res) => {
     try {
       const deletingUserId = req.params.id;
       const reqUserEmail = req.user.email
-      console.log('email is')
-      console.log(reqUserEmail)
+   
       const requestingUser= await User.findOne({email: reqUserEmail})
 
-    console.log('comparison')
-      console.log(requestingUser._id)
-      console.log(deletingUserId)
-     
       if (deletingUserId == requestingUser._id){
-        console.log('i happen')
+       
         return res.status(403).json({error: `You cannot delete yourself from the system`})
       }
       
@@ -407,26 +392,19 @@ const handleReports = async (req, res) => {
       location = req.body.location
     }
 
-    // console.log('USER during')
-    // console.log(currUser)
-    // console.log(currUser._id)
     
     //change to EMAIL
     userId = await User.findOne({name: currUser.name, surname: currUser.surname}).select('_id');
-    // console.log(userId)
+   
     const report = await Report.create({user: userId, level: level, location: location})
-    // console.log('REPORT IS')
-    // console.log(report)
+    
     const hospital = await HospitalSystem.findById(currUser.institution)
-
-    console.log('HOSPITAL')
-   console.log(hospital)
 
     // Save the updated hospital document
     hospital.reports.push(report._id);
     await hospital.save();
   } catch (err){
-    console.log(err)
+    
     res.status(401).json({err})
     return;
   }
@@ -442,8 +420,7 @@ const viewReports = async (req, res) => {
         
       const hospitalSystemId = req.user.institution
 
-      console.log('HOSPITAL ID')
-      console.log(hospitalSystemId)
+     
 
       // find the hospital system by ID and populate the members field
       // const hospitalSystem = await HospitalSystem.findById(hospitalSystemId).populate('reports').exec();
@@ -461,8 +438,7 @@ const viewReports = async (req, res) => {
       if (!hospitalSystem) {
           return res.status(404).json({ error: 'Hospital System not found' });
       }
-        console.log('WELL')
-        console.log(hospitalSystem.reports)
+       
       // The populated members will be an array of user documents
 
       return res.json(hospitalSystem.reports);
@@ -483,22 +459,18 @@ const deleteReport = async (req, res) => {
     const level = parseInt(req.body.level, 10)
     const name = req.user.name
     const surname = req.user.surname
-    console.log(name)
-    console.log(surname)
-    console.log(level)
-    console.log(req.user.email)
+  
     const requestingUser = await User.findOne({email: req.user.email})
 
-    //console.log(requestingUser)
+   
     const latestReport = await Report.find({
       user: requestingUser,
       level: level
 
     })
-     .sort({ createdAt: -1 })  // Sort by 'created_at' in descending order (latest first)
+     .sort({ createdAt: -1 })  
      .exec();
-   console.log('LATEST')
-    console.log(latestReport[0])
+  
     const result = await Report.deleteOne(latestReport[0])
 
     if (!result) {
@@ -515,20 +487,10 @@ const deleteReport = async (req, res) => {
 
 
 const handleFeedback = async (req, res) => {
-  // const title = req.params.title
-  // const message = req.params.message
 
-  // const isAnonymous = req.params.isAnonymous
-  // const isSentToMedSafe = req.params.isSentToMedSafe
-  //const { title, message, isAnonymous, isSentToMedSafe } = req.body;
 
   try{
   const { title, message, isAnonymous } = req.body;
-
-  console.log(title)
-  console.log(message)
-  console.log(isAnonymous)
-
   
   if (!isAnonymous){
     userId = await User.findOne({email: req.user.email}).select('_id');
@@ -541,8 +503,6 @@ const handleFeedback = async (req, res) => {
 
   const hospital = await HospitalSystem.findById(req.user.institution)
 
-  console.log('HOSPITAL')
- console.log(hospital)
 
   // Save the updated hospital document
   hospital.feedback.push(form._id);
@@ -563,7 +523,7 @@ const viewFeedback = async (req, res) => {
       const hospitalSystemId = req.user.institution
 
       // find the hospital system by ID and populate the members field
-      // const hospitalSystem = await HospitalSystem.findById(hospitalSystemId).populate('reports').exec();
+      
       const hospitalSystem = await HospitalSystem.findById(hospitalSystemId)
       .populate({
         path: 'feedback', 
