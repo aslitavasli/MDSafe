@@ -1,5 +1,7 @@
 ### MedSafe: Preventing Healthcare Violence
 
+This project is mainly based on different user types of different authorization levels, user and feedback databases, JWT verification etc.
+
 ## Watch the Demo: [HERE](https://drive.google.com/file/d/1h0n5rSi0wKTTIRiT-gr1Ci_0zBjnEwLA/view?usp=sharing)
 
 In the past decade, violence in healthcare settings has seen a significant rise both globally and in Turkey. News reports of attacks on healthcare workers have unfortunately become a regular feature in Turkish media, highlighting the severity of the issue.
